@@ -1,0 +1,6 @@
+# Java / Maven build output
+**/target/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

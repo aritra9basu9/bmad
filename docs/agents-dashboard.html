@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMAD Agents Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #131c31;
+      --panel-2: #1a2742;
+      --text: #e8eefc;
+      --muted: #9eb0d1;
+      --accent: #7db0ff;
+      --good: #21c67a;
+      --border: #2b3a5f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #1a2742 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.7rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 6px 0 0;
+      font-size: 0.95rem;
+    }
+
+    .status {
+      background: rgba(33, 198, 122, 0.15);
+      color: #7ef0b6;
+      border: 1px solid rgba(33, 198, 122, 0.45);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0 2px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #2a3f68, #1f3255);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .context-input {
+      flex: 1;
+      min-width: 260px;
+      border: 1px solid var(--border);
+      background: #101a2d;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .role {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      border: 1px solid var(--border);
+      color: var(--accent);
+      background: rgba(125, 176, 255, 0.12);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 4px 9px;
+    }
+
+    .card p {
+      margin: 7px 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .run-state {
+      color: var(--accent);
+      font-size: 0.82rem;
+      margin: 0 0 8px;
+    }
+
+    .card strong {
+      color: var(--text);
+    }
+
+    .footer {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>BMAD Agents Visual Dashboard</h1>
+        <p class="subtitle">Interactive representation of your BMAD multi-agent run.</p>
+      </div>
+      <div id="overallStatus" class="status">Ready to run</div>
+    </div>
+
+    <div class="controls">
+      <input id="projectContext" class="context-input" type="text" value="Build a greenfield web app MVP" />
+      <button id="runBtn" class="btn" type="button">Run Agents</button>
+      <button id="resetBtn" class="btn" type="button">Reset</button>
+    </div>
+
+    <section class="grid">
+      <article class="card" id="analystCard">
+        <div class="card-top">
+          <h2 class="role">Analyst</h2>
+          <span class="badge">Discovery</span>
+        </div>
+        <p class="run-state" id="analystState">Idle</p>
+        <p id="analystPrimary"><strong>Risk:</strong> Waiting for run...</p>
+        <p id="analystSecondary"><strong>Requirement question:</strong> Waiting for run...</p>
+      </article>
+
+      <article class="card" id="architectCard">
+        <div class="card-top">
+          <h2 class="role">Architect</h2>
+          <span class="badge">System Design</span>
+        </div>
+        <p class="run-state" id="architectState">Idle</p>
+        <p id="architectPrimary"><strong>Recommendation:</strong> Waiting for run...</p>
+        <p id="architectSecondary"><strong>Technical risk:</strong> Waiting for run...</p>
+      </article>
+
+      <article class="card" id="developerCard">
+        <div class="card-top">
+          <h2 class="role">Developer</h2>
+          <span class="badge">Execution</span>
+        </div>
+        <p class="run-state" id="developerState">Idle</p>
+        <p id="developerPrimary"><strong>First step:</strong> Waiting for run...</p>
+        <p id="developerSecondary"><strong>First test:</strong> Waiting for run...</p>
+      </article>
+    </section>
+
+    <div class="footer">
+      File: <code>docs/agents-dashboard.html</code> &middot; Last run: <span id="lastRun">Never</span>
+    </div>
+  </div>
+
+  <script>
+    const runBtn = document.getElementById("runBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const contextInput = document.getElementById("projectContext");
+    const overallStatus = document.getElementById("overallStatus");
+    const lastRun = document.getElementById("lastRun");
+
+    const cards = {
+      analyst: {
+        state: document.getElementById("analystState"),
+        primary: document.getElementById("analystPrimary"),
+        secondary: document.getElementById("analystSecondary")
+      },
+      architect: {
+        state: document.getElementById("architectState"),
+        primary: document.getElementById("architectPrimary"),
+        secondary: document.getElementById("architectSecondary")
+      },
+      developer: {
+        state: document.getElementById("developerState"),
+        primary: document.getElementById("developerPrimary"),
+        secondary: document.getElementById("developerSecondary")
+      }
+    };
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function setIdle() {
+      overallStatus.textContent = "Ready to run";
+      cards.analyst.state.textContent = "Idle";
+      cards.architect.state.textContent = "Idle";
+      cards.developer.state.textContent = "Idle";
+      cards.analyst.primary.innerHTML = "<strong>Risk:</strong> Waiting for run...";
+      cards.analyst.secondary.innerHTML = "<strong>Requirement question:</strong> Waiting for run...";
+      cards.architect.primary.innerHTML = "<strong>Recommendation:</strong> Waiting for run...";
+      cards.architect.secondary.innerHTML = "<strong>Technical risk:</strong> Waiting for run...";
+      cards.developer.primary.innerHTML = "<strong>First step:</strong> Waiting for run...";
+      cards.developer.secondary.innerHTML = "<strong>First test:</strong> Waiting for run...";
+    }
+
+    async function runAgents() {
+      const context = contextInput.value.trim() || "your project";
+      runBtn.disabled = true;
+      overallStatus.textContent = "Running agents...";
+
+      cards.analyst.state.textContent = "Running...";
+      await wait(450);
+      cards.analyst.state.textContent = "Completed";
+      cards.analyst.primary.innerHTML = "<strong>Risk:</strong> For " + context + ", unclear scope can trigger rework and delivery delays.";
+      cards.analyst.secondary.innerHTML = "<strong>Requirement question:</strong> Which single user outcome must be successful in version 1?";
+
+      cards.architect.state.textContent = "Running...";
+      await wait(450);
+      cards.architect.state.textContent = "Completed";
+      cards.architect.primary.innerHTML = "<strong>Recommendation:</strong> Start with a modular monolith with clear domain boundaries and API contracts.";
+      cards.architect.secondary.innerHTML = "<strong>Technical risk:</strong> Validate data model and indexing against expected read/write hotspots early.";
+
+      cards.developer.state.textContent = "Running...";
+      await wait(450);
+      cards.developer.state.textContent = "Completed";
+      cards.developer.primary.innerHTML = "<strong>First step:</strong> Implement the smallest end-to-end slice that proves the main user flow for " + context + ".";
+      cards.developer.secondary.innerHTML = "<strong>First test:</strong> Add a failing unit test for the primary happy path, then implement until green.";
+
+      overallStatus.textContent = "All agents responded";
+      lastRun.textContent = new Date().toLocaleString();
+      runBtn.disabled = false;
+    }
+
+    runBtn.addEventListener("click", runAgents);
+    resetBtn.addEventListener("click", () => {
+      setIdle();
+      lastRun.textContent = "Never";
+    });
+
+    setIdle();
+  </script>
+</body>
+</html>
