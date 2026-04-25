@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMAD Project Visual Representation</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131a30;
+      --panel-2: #182343;
+      --text: #e8edff;
+      --muted: #a9b7e5;
+      --line: #33446f;
+      --accent: #80aaff;
+      --ok: #3ad38c;
+      --warn: #ffbf66;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Segoe UI, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #1a2850, var(--bg) 45%);
+    }
+    .wrap {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.2rem; margin-top: 24px; }
+    p { margin: 0; color: var(--muted); }
+    .section {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(10, 16, 35, 0.35);
+      padding: 12px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.74rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .node {
+      border: 1px solid var(--line);
+      background: rgba(14, 22, 44, 0.7);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .arrow { color: var(--accent); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .mono { font-family: Consolas, monospace; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>BMAD AI Test Lifecycle Platform - Visual Representation</h1>
+    <p>End-to-end project map: agents, skills, delivery artifacts, LangChain orchestration, and management integrations.</p>
+
+    <div class="section">
+      <h2>1) Repository Structure</h2>
+      <div class="grid">
+        <div class="card">
+          <span class="tag">Core BMAD</span>
+          <ul>
+            <li class="mono">_bmad/</li>
+            <li class="mono">.cursor/skills/</li>
+            <li>Installed BMAD agents and workflows</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag">Planning</span>
+          <ul>
+            <li class="mono">_bmad-output/planning-artifacts/</li>
+            <li>PRD, architecture, epics and stories</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag">Implementation</span>
+          <ul>
+            <li class="mono">automation-java-selenium/</li>
+            <li>Selenium + Cucumber + TestNG scaffold</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag">Orchestration</span>
+          <ul>
+            <li class="mono">.github/agents/</li>
+            <li class="mono">.github/skills/</li>
+            <li class="mono">langchain-implementation/</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>2) Sequential Agent Flow</h2>
+      <div class="flow">
+        <div class="node">Analyst</div><div class="arrow">-></div>
+        <div class="node">PM</div><div class="arrow">-></div>
+        <div class="node">Architect</div><div class="arrow">-></div>
+        <div class="node">Developer</div><div class="arrow">-></div>
+        <div class="node">Tech Writer</div><div class="arrow">-></div>
+        <div class="node">UX Designer</div>
+      </div>
+      <ul>
+        <li>Each agent consumes project goal + accumulated pipeline state.</li>
+        <li>Primary skills loaded from <span class="mono">.github/skills/skill-index.yaml</span>.</li>
+        <li>Outputs persisted as JSON/Markdown run artifacts.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>3) RAG with Redis Vector Store</h2>
+      <div class="flow">
+        <div class="node">Planning Docs</div><div class="arrow">-></div>
+        <div class="node">Chunking</div><div class="arrow">-></div>
+        <div class="node">OpenAI Embeddings</div><div class="arrow">-></div>
+        <div class="node">Redis Vector Index</div><div class="arrow">-></div>
+        <div class="node">Retriever -> Agent Prompt</div>
+      </div>
+      <ul>
+        <li>Implementation file: <span class="mono">langchain-implementation/rag_redis.py</span></li>
+        <li>Index trigger: set <span class="mono">RAG_REINDEX=true</span></li>
+        <li>Retriever is injected per-agent in sequential pipeline.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>4) Management Integrations</h2>
+      <div class="grid">
+        <div class="card">
+          <span class="tag">JIRA</span>
+          <ul>
+            <li>Create issue per pipeline execution summary</li>
+            <li>Env: <span class="mono">JIRA_BASE_URL</span>, <span class="mono">JIRA_EMAIL</span>, <span class="mono">JIRA_API_TOKEN</span>, <span class="mono">JIRA_PROJECT_KEY</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag">Confluence</span>
+          <ul>
+            <li>Create execution page with pipeline output</li>
+            <li>Env: <span class="mono">CONFLUENCE_BASE_URL</span>, <span class="mono">CONFLUENCE_SPACE_KEY</span>, credentials</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag">Xray</span>
+          <ul>
+            <li>Import test execution payload scaffold</li>
+            <li>Env: <span class="mono">XRAY_BASE_URL</span>, <span class="mono">XRAY_CLIENT_ID</span>, <span class="mono">XRAY_CLIENT_SECRET</span></li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:10px" class="warn">Publishing is optional and controlled via <span class="mono">PIPELINE_PUBLISH_MGMT=true</span>.</p>
+    </div>
+
+    <div class="section">
+      <h2>5) End-to-End Delivery Lifecycle</h2>
+      <div class="flow">
+        <div class="node">User Story</div><div class="arrow">-></div>
+        <div class="node">Test Case Design</div><div class="arrow">-></div>
+        <div class="node">Gherkin</div><div class="arrow">-></div>
+        <div class="node">Selenium Java</div><div class="arrow">-></div>
+        <div class="node">Execution</div><div class="arrow">-></div>
+        <div class="node">Defects + Security + Maintenance</div>
+      </div>
+      <ul>
+        <li class="ok">Mapped in stories and skills for each stage.</li>
+        <li class="ok">Automation scaffold available in <span class="mono">automation-java-selenium/</span>.</li>
+        <li class="ok">LangChain orchestrator available in <span class="mono">langchain-implementation/sequential_agents.py</span>.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

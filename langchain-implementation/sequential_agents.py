@@ -10,6 +10,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from integrations import create_confluence_page, create_jira_issue, import_xray_test_execution
+from rag_redis import build_redis_vectorstore, get_retriever
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENT_INDEX = ROOT / ".github" / "agents" / "agent-index.yaml"
@@ -59,11 +61,21 @@ def build_skill_map() -> Dict[str, Dict[str, str]]:
     return {s["id"]: s for s in skill_data.get("skills", [])}
 
 
-def run_sequential_pipeline(user_goal: str, model_name: str = "gpt-4o-mini") -> Dict[str, Any]:
+def run_sequential_pipeline(
+    user_goal: str,
+    model_name: str = "gpt-4o-mini",
+    use_rag: bool = True,
+) -> Dict[str, Any]:
     llm = ChatOpenAI(model=model_name, temperature=0)
     parser = StrOutputParser()
     agents = build_agent_defs()
     skill_map = build_skill_map()
+    retriever = None
+
+    if use_rag:
+        if os.getenv("RAG_REINDEX", "false").lower() == "true":
+            build_redis_vectorstore()
+        retriever = get_retriever()
 
     state: Dict[str, Any] = {
         "user_goal": user_goal,
@@ -78,6 +90,12 @@ def run_sequential_pipeline(user_goal: str, model_name: str = "gpt-4o-mini") -> 
             compiled_skills.append(f"## Skill: {skill_id}\n{skill_text}")
 
         skill_context = "\n\n".join(compiled_skills)
+        rag_context = ""
+        if retriever is not None:
+            docs = retriever.invoke(f"{agent.display_name} guidance for goal: {user_goal}")
+            rag_context = "\n\n".join([d.page_content for d in docs])
+            if not rag_context:
+                rag_context = "[No RAG context returned]"
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -92,6 +110,7 @@ def run_sequential_pipeline(user_goal: str, model_name: str = "gpt-4o-mini") -> 
                     "human",
                     "User goal:\n{user_goal}\n\n"
                     "Current pipeline state:\n{state_json}\n\n"
+                    "RAG context from Redis vector store:\n{rag_context}\n\n"
                     "Relevant skills:\n{skill_context}\n\n"
                     "Respond in markdown with sections: Decisions, Artifacts, Handoff.",
                 ),
@@ -105,6 +124,7 @@ def run_sequential_pipeline(user_goal: str, model_name: str = "gpt-4o-mini") -> 
                 "purpose": agent.purpose,
                 "user_goal": state["user_goal"],
                 "state_json": json.dumps(state, indent=2),
+                "rag_context": rag_context,
                 "skill_context": skill_context,
             }
         )
@@ -124,6 +144,37 @@ def run_sequential_pipeline(user_goal: str, model_name: str = "gpt-4o-mini") -> 
         )
 
     return state
+
+
+def publish_to_management_tools(result: Dict[str, Any]) -> Dict[str, Any]:
+    summary = f"BMAD Sequential Run: {result['user_goal'][:120]}"
+    full_text = json.dumps(result, indent=2)
+    jira_result = create_jira_issue(
+        summary=summary,
+        description="Automated update from LangChain pipeline run.\n\n" + full_text[:25000],
+    )
+    confluence_result = create_confluence_page(
+        title=f"BMAD Run - {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        content_markdown=full_text[:50000],
+    )
+
+    xray_payload = {
+        "testExecutionKey": os.getenv("XRAY_TEST_EXECUTION_KEY", "AUTO-GENERATED"),
+        "info": {"summary": "BMAD automated test lifecycle run"},
+        "tests": [
+            {
+                "testKey": os.getenv("XRAY_TEST_KEY", "AUTO-T1"),
+                "status": "PASSED",
+                "comment": "Placeholder status from sequential pipeline scaffold",
+            }
+        ],
+    }
+    xray_result = import_xray_test_execution(xray_payload)
+    return {
+        "jira": jira_result,
+        "confluence": confluence_result,
+        "xray": xray_result,
+    }
 
 
 def write_run_outputs(result: Dict[str, Any]) -> Path:
@@ -151,7 +202,11 @@ if __name__ == "__main__":
         "Create complete testing lifecycle from user story to gherkin, selenium, defects, security, and maintenance.",
     )
     model = os.getenv("PIPELINE_MODEL", "gpt-4o-mini")
+    use_rag = os.getenv("PIPELINE_USE_RAG", "true").lower() == "true"
+    publish_mgmt = os.getenv("PIPELINE_PUBLISH_MGMT", "false").lower() == "true"
 
-    result = run_sequential_pipeline(user_goal=goal, model_name=model)
+    result = run_sequential_pipeline(user_goal=goal, model_name=model, use_rag=use_rag)
+    if publish_mgmt:
+        result["management_publish"] = publish_to_management_tools(result)
     output_dir = write_run_outputs(result)
     print(f"Sequential run complete. Outputs written to: {output_dir}")
