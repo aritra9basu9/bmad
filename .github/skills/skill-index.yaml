@@ -1,0 +1,56 @@
+version: 1
+skills:
+  - id: story-intake-and-test-design
+    file: story-intake-and-test-design.md
+    stage: analysis
+    output: categorized test cases mapped to acceptance criteria
+
+  - id: requirement-gap-check
+    file: requirement-gap-check.md
+    stage: analysis
+    output: missing requirements and ambiguity list
+
+  - id: lifecycle-backlog-shaping
+    file: lifecycle-backlog-shaping.md
+    stage: planning
+    output: prioritized stories with dependencies
+
+  - id: architecture-slice-definition
+    file: architecture-slice-definition.md
+    stage: planning
+    output: component boundaries and interface contracts
+
+  - id: journey-to-acceptance-criteria
+    file: journey-to-acceptance-criteria.md
+    stage: planning
+    output: user journey acceptance criteria set
+
+  - id: gherkin-to-selenium-java
+    file: gherkin-to-selenium-java.md
+    stage: implementation
+    output: feature files, step defs, page objects, runnable tests
+
+  - id: defect-evidence-and-ticketing
+    file: defect-evidence-and-ticketing.md
+    stage: implementation
+    output: defect payloads with reproducible evidence
+
+  - id: security-scan-gate
+    file: security-scan-gate.md
+    stage: quality
+    output: pass-fail decision based on configured thresholds
+
+  - id: maintenance-flaky-drift
+    file: maintenance-flaky-drift.md
+    stage: maintenance
+    output: flaky/drift remediation plan
+
+  - id: runbook-and-standards
+    file: runbook-and-standards.md
+    stage: documentation
+    output: operation runbook and team standards
+
+  - id: release-readiness-check
+    file: release-readiness-check.md
+    stage: release
+    output: go-no-go checklist outcome

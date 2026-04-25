@@ -1,0 +1,56 @@
+version: 1
+project: ai-test-lifecycle-platform
+agents:
+  - id: analyst
+    display_name: BMAD Analyst
+    bmad_agent: bmad-agent-analyst
+    purpose: Convert business/user-story intent into clear requirements and test scope.
+    primary_skills:
+      - story-intake-and-test-design
+      - requirement-gap-check
+    source_skill_path: .cursor/skills/bmad-agent-analyst/SKILL.md
+
+  - id: pm
+    display_name: BMAD Product Manager
+    bmad_agent: bmad-agent-pm
+    purpose: Shape roadmap, PRD quality, and prioritization decisions.
+    primary_skills:
+      - lifecycle-backlog-shaping
+      - release-readiness-check
+    source_skill_path: .cursor/skills/bmad-agent-pm/SKILL.md
+
+  - id: architect
+    display_name: BMAD Architect
+    bmad_agent: bmad-agent-architect
+    purpose: Define architecture, integration boundaries, and quality gates.
+    primary_skills:
+      - architecture-slice-definition
+      - security-scan-gate
+    source_skill_path: .cursor/skills/bmad-agent-architect/SKILL.md
+
+  - id: developer
+    display_name: BMAD Developer
+    bmad_agent: bmad-agent-dev
+    purpose: Implement Java Selenium automation and execution flow from approved stories.
+    primary_skills:
+      - gherkin-to-selenium-java
+      - defect-evidence-and-ticketing
+      - maintenance-flaky-drift
+    source_skill_path: .cursor/skills/bmad-agent-dev/SKILL.md
+
+  - id: tech-writer
+    display_name: BMAD Tech Writer
+    bmad_agent: bmad-agent-tech-writer
+    purpose: Produce and validate project docs, standards, and runbooks.
+    primary_skills:
+      - runbook-and-standards
+      - release-readiness-check
+    source_skill_path: .cursor/skills/bmad-agent-tech-writer/SKILL.md
+
+  - id: ux-designer
+    display_name: BMAD UX Designer
+    bmad_agent: bmad-agent-ux-designer
+    purpose: Define reviewable UX flows and testable user journeys.
+    primary_skills:
+      - journey-to-acceptance-criteria
+    source_skill_path: .cursor/skills/bmad-agent-ux-designer/SKILL.md
