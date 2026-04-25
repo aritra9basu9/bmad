@@ -1,6 +1,10 @@
 # Java / Maven build output
 **/target/
 
+# Python cache
+**/__pycache__/
+*.pyc
+
 # OS/editor noise
 .DS_Store
 Thumbs.db
