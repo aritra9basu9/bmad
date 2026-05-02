@@ -1,0 +1,79 @@
+name: Daily Test Suite (UI + API)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # Every day at 06:00 UTC
+  workflow_dispatch:        # Manual trigger from Actions tab
+
+jobs:
+
+  # ──────────────────────────────────────────────
+  # Job 1: Selenium UI Tests
+  # ──────────────────────────────────────────────
+  ui-tests:
+    name: UI Tests (Selenium + TestNG)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Install Google Chrome (stable)
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Run UI tests
+        run: |
+          mvn test \
+            -f sample_pom.xml \
+            -Dsurefire.suiteXmlFiles=src/test/resources/testng-ui.xml \
+            --no-transfer-progress
+
+      - name: Upload UI test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-reports
+          path: target/surefire-reports/
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # Job 2: REST Assured API Tests
+  # ──────────────────────────────────────────────
+  api-tests:
+    name: API Tests (REST Assured + TestNG)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run API tests
+        run: |
+          mvn test \
+            -f sample_pom.xml \
+            -Dsurefire.suiteXmlFiles=src/test/resources/testng-api.xml \
+            --no-transfer-progress
+
+      - name: Upload API test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-reports
+          path: target/surefire-reports/
+          retention-days: 14
