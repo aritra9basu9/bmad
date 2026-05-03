@@ -2,14 +2,10 @@ name: Daily Test Suite (UI + API)
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # Every day at 06:00 UTC
-  workflow_dispatch:        # Manual trigger from Actions tab
+    - cron: '0 6 * * *'
+  workflow_dispatch:
 
 jobs:
-
-  # ──────────────────────────────────────────────
-  # Job 1: Selenium UI Tests
-  # ──────────────────────────────────────────────
   ui-tests:
     name: UI Tests (Selenium + TestNG)
     runs-on: ubuntu-latest
@@ -31,10 +27,10 @@ jobs:
           chrome-version: stable
 
       - name: Run UI tests
+        working-directory: automation-java-selenium
         run: |
           mvn test \
-            -f sample_pom.xml \
-            -Dsurefire.suiteXmlFiles=src/test/resources/testng-ui.xml \
+            -Dsurefire.suiteXmlFiles=testng-ui.xml \
             --no-transfer-progress
 
       - name: Upload UI test reports
@@ -42,12 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ui-test-reports
-          path: target/surefire-reports/
+          path: automation-java-selenium/target/surefire-reports/
           retention-days: 14
 
-  # ──────────────────────────────────────────────
-  # Job 2: REST Assured API Tests
-  # ──────────────────────────────────────────────
   api-tests:
     name: API Tests (REST Assured + TestNG)
     runs-on: ubuntu-latest
@@ -64,10 +57,10 @@ jobs:
           cache: maven
 
       - name: Run API tests
+        working-directory: automation-java-selenium
         run: |
           mvn test \
-            -f sample_pom.xml \
-            -Dsurefire.suiteXmlFiles=src/test/resources/testng-api.xml \
+            -Dsurefire.suiteXmlFiles=testng-api.xml \
             --no-transfer-progress
 
       - name: Upload API test reports
@@ -75,5 +68,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-test-reports
-          path: target/surefire-reports/
+          path: automation-java-selenium/target/surefire-reports/
           retention-days: 14

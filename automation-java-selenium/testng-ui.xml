@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="BMAD UI Suite">
+    <test name="Cucumber UI Scenarios">
+        <classes>
+            <class name="org.bmad.runners.CucumberTestRunner"/>
+        </classes>
+    </test>
+</suite>
